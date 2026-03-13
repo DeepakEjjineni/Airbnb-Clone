@@ -1,0 +1,123 @@
+body{
+  font-family: "Plus Jakarta Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.container{
+  flex: 1;
+}
+
+.navbar{
+  background-color: white;
+  height: 4rem;
+}
+.fa-book-atlas{
+  color:#8f2f9c;
+  font-size: 1.5rem;
+}
+.nav-link{
+  color:#222222 !important ;
+  /* margin-right: 1rem !important; */
+}
+
+/* Footer */
+
+.f-info{
+  background-color: #e1e0e0;
+  height: 6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  
+}
+.f-links a{
+  text-decoration: none;
+}
+.f-links a:hover{
+  text-decoration: underline;
+}
+.f-social,.f-brand,.f-links{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.f-social i{
+  font-size: 1rem;
+  margin-left: 0.5rem;
+}
+
+/* Cards */
+/* Remove default anchor styling */
+.listing-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Card container */
+.listing-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect (Airbnb-style) */
+.listing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Image styling */
+.listing-card img {
+  width: 100%;
+  height: 230px;              /* 🔥 KEY FIX */
+  object-fit: cover;          /* 🔥 KEY FIX */
+  display: block;
+}
+
+/* Text section */
+.listing-body {
+  padding: 12px 4px;
+}
+
+.listing-body h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.listing-body p {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.add-btn{
+  background-color: #8f2f9c !important;
+  border: none !important;
+  border-radius: 25px !important;
+}
+
+.showpage-img{
+  height: 50vh;
+  border-radius: 18px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important ;
+}
+
+.show-card{
+  border:none !important;
+
+}
+.showbtns{
+  display: flex;
+
+}
+.search-bar{
+  width: 100% !important;
+  border-radius: 25px !important;
+}
+
