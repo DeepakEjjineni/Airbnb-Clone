@@ -15,7 +15,12 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const cors = require("cors");
-const port = 9494;
+const MongoStore = require('connect-mongo');
+
+const PORT = process.env.PORT || 9494;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 // Import route files
 const listingRouter = require("./routes/listing.js");
@@ -52,16 +57,17 @@ app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
 
 // Session configuration
-const sessionOptions = {
+app.use(session({
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    secret: "myultrasecretcode",
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     cookie: {
-        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
+      httpOnly: true,
+      expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+      maxAge: 1000 * 60 * 60 * 24 * 7
     }
-}
+  }));
 
 app.use(session(sessionOptions));
 app.use(flash());
