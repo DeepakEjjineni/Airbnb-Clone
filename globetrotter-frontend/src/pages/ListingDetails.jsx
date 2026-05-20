@@ -61,7 +61,7 @@ const ListingDetails = () => {
       await reviewService.createReview(id, { review: reviewForm });
       setFlashMessage({ message: 'New Review Added', type: 'success' });
       setReviewForm({ rating: 3, comment: '' });
-      fetchListing(); // Refresh to show new review
+      fetchListing(); 
     } catch (err) {
       setFlashMessage({ 
         message: err.response?.data?.error || 'Failed to add review', 
@@ -156,7 +156,7 @@ const ListingDetails = () => {
 
           <hr />
 
-          {/* Review Form */}
+          {/* Review submission */}
           <div className="col-8 offset-2 mb-4">
             <h4>Leave your Valuable Review here !!</h4>
             <Form onSubmit={handleReviewSubmit} className="needs-validation">
@@ -202,7 +202,7 @@ const ListingDetails = () => {
             </Form>
           </div>
 
-          {/* Reviews List */}
+          {/* Review member list */}
           <Row>
             {listing.review && listing.review.length > 0 ? (
               listing.review.map((r) => (

@@ -19,7 +19,7 @@ const Navbar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search functionality
+    // search functionality
     console.log('Searching for:', searchQuery);
   };
 
@@ -33,7 +33,7 @@ const Navbar = () => {
         <BSNavbar.Toggle aria-controls="navbarNavAltMarkup" />
         
         <BSNavbar.Collapse id="navbarNavAltMarkup">
-          
+           
           <Form className="d-flex ms-auto" role="search" onSubmit={handleSearch}>
             <Form.Control
               type="search"

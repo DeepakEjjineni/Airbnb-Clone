@@ -33,4 +33,4 @@ export const listingService = {
   deleteListing: async (id) => {
     return api.delete(`/listings/${id}`);
   }
-};
+}; 
