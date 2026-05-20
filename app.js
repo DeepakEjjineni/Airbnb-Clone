@@ -1,4 +1,4 @@
-if(process.env.NODE_ENV != "production"){
+if (process.env.NODE_ENV != "production") {
     require('dotenv').config();
 }
 
@@ -17,69 +17,48 @@ const User = require("./models/user.js");
 const cors = require("cors");
 const MongoStore = require('connect-mongo');
 
-const PORT = process.env.PORT || 9494;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Import route files
-const listingRouter = require("./routes/listing.js");
-const reviewRouter = require("./routes/review.js");
-const userRouter = require("./routes/user.js");
-
-const Mongo_URL = 'mongodb://127.0.0.1:27017/GlobeTrotter';
+// ✅ FIX 1: Use MONGO_URI env variable (not hardcoded local URL)
+const MONGO_URL = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/GlobeTrotter';
 
 main().then(() => {
     console.log("connected to db");
 }).catch((err) => {
-    console.log("error occurred in db connection");
-})
+    console.log("error occurred in db connection", err);
+});
 
 async function main() {
-    mongoose.connect(Mongo_URL);
+    await mongoose.connect(MONGO_URL);
 }
 
-// CORS configuration - IMPORTANT for React frontend
+// CORS configuration
 app.use(cors({
-    origin: 'http://localhost:3000', // React dev server
-    credentials: true // Allow cookies
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
 }));
 
 // Middleware setup
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// View engine setup (keep for backward compatibility or admin panel)
+// View engine setup
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: {
-      httpOnly: true,
-      expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-  }));
-
-  const sessionOptions = {
+// ✅ FIX 2: Single clean session config (removed duplicate)
+const sessionOptions = {
     secret: process.env.SESSION_SECRET || "fallbacksecret",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    store: MongoStore.create({ mongoUrl: MONGO_URL }),
     cookie: {
-      httpOnly: true,
-      expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
-      maxAge: 1000 * 60 * 60 * 24 * 7
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        maxAge: 1000 * 60 * 60 * 24 * 7
     }
-  };
+};
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -88,11 +67,10 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Flash middleware - make flash messages available to all responses
+// Flash middleware
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -100,15 +78,20 @@ app.use((req, res, next) => {
     next();
 });
 
-// API Routes for React frontend
+// Import route files
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+
+// Routes
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 
-// Get current user endpoint (for React auth check)
+// Current user endpoint
 app.get("/currentuser", (req, res) => {
     if (req.isAuthenticated()) {
-        res.json({ 
+        res.json({
             success: true,
             user: {
                 _id: req.user._id,
@@ -117,37 +100,37 @@ app.get("/currentuser", (req, res) => {
             }
         });
     } else {
-        res.status(401).json({ 
+        res.status(401).json({
             success: false,
-            user: null 
+            user: null
         });
     }
 });
 
-// Demo user route (optional - for testing)
-app.get("/demouser", async(req, res) => {
+// Demo user route
+app.get("/demouser", async (req, res) => {
     try {
         let fakeUser = new User({
             email: `student${Date.now()}@gmail.com`,
             username: `student${Date.now()}`,
         });
         let registeredUser = await User.register(fakeUser, "password2");
-        res.json({ 
+        res.json({
             success: true,
             message: "Demo user created",
-            user: registeredUser 
+            user: registeredUser
         });
     } catch (err) {
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
-            error: err.message 
+            error: err.message
         });
     }
 });
 
 // Root route
 app.get("/", (req, res) => {
-    res.json({ 
+    res.json({
         message: "GlobeTrotter API",
         version: "1.0.0",
         endpoints: {
@@ -159,7 +142,7 @@ app.get("/", (req, res) => {
     });
 });
 
-// 404 handler - catches all unmatched routes
+// 404 handler
 app.use((req, res, next) => {
     next(new expressError(404, "Page not Found"));
 });
@@ -167,8 +150,6 @@ app.use((req, res, next) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Something went wrong" } = err;
-    
-    // Return JSON for API errors
     res.status(statusCode).json({
         success: false,
         error: message,
@@ -176,8 +157,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`GlobeTrotter API listening on port ${port}`);
-    console.log(`Frontend should run on http://localhost:3000`);
-    console.log(`Backend API: http://localhost:${port}`);
+// ✅ FIX 3: Single app.listen using PORT env variable
+const PORT = process.env.PORT || 9494;
+app.listen(PORT, () => {
+    console.log(`GlobeTrotter API listening on port ${PORT}`);
 });
